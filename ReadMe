@@ -20,6 +20,9 @@ py：
         RAN.py (Restorator用的全Conv2d)
         RANList.py ( Restorator用的全residualBlock)
 
+    特征提取并计算损失函数数值：
+       perceptionError.py
+
     用于截取固定大小的图像：
         trainCropImage.py
 
