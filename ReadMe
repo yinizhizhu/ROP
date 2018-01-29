@@ -1,0 +1,52 @@
+py：
+    数据读入：64×64的Patch-Wise
+        patch_wise.py
+
+    数据读入：min-batch 5×3×64×64
+        data.py
+        dataset.py
+
+    调用学好的模型进行图像复原：
+        denoiser.py
+
+    生成对抗网络样例：
+        gan1.py
+        gan2.py
+
+    自己仿写的生成对抗网络：
+        main.py
+
+    网络模型：
+        RAN.py (Restorator用的全Conv2d)
+        RANList.py ( Restorator用的全residualBlock)
+
+    用于截取固定大小的图像：
+        trainCropImage.py
+
+    尝试联合Matlab编程
+        tryMatlab.py
+
+    最终的训练主函数：
+        VGGLoss.py
+
+文件夹：
+    图像数据库：
+        Database（LIVE、WaterLoo Exploration、TID2013）
+
+    vgg19_bn作为特征提取的网络所学习到的模型：
+        vgg19_bn
+
+    vgg19作为特征提取的网络所学习到的模型:
+        vgg19
+
+    用residualBlock的Restorator的模型:
+        othersRes
+
+    用residualBlock的Restorator的模型:
+        othersConv
+
+    输出图像文件夹：
+        outPic
+
+    最开始学习到的模型：
+        gblurConv
