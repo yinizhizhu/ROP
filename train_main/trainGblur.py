@@ -1,30 +1,28 @@
 from __future__ import print_function
-from math import log10
 import torch
-import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
-# from RAN import restorator
 from RANList import restorator
 from data import get_training_set
+from perceptionError import PERLoss
 
-from pycrayon import CrayonClient
-import time
+# from pycrayon import CrayonClient
+# import time
+#
+# cc = CrayonClient(hostname="localhost", port=8889)
 
-cc = CrayonClient(hostname="localhost", port=8889)
-
-cc.remove_experiment("train_loss")
+# cc.remove_experiment("train_loss")
 class trainer:
     def __init__(self, typeDir, epochs, l, load, dir):
         self.load = load
         self.typeDir = typeDir
-        self.timeH = time.time()
+        # self.timeH = time.time()
         self.dir = dir
 
         self.trainLN = "train_loss"
-        cc.remove_experiment(self.trainLN)
-        self.trainL = cc.create_experiment(self.trainLN)
+        # cc.remove_experiment(self.trainLN)
+        # self.trainL = cc.create_experiment(self.trainLN)
 
         self.nEpochs = epochs
 
@@ -41,14 +39,13 @@ class trainer:
         train_set = get_training_set(self.typeDir)
         self.training_data_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=5, shuffle=True)
 
-        print('===> Building gblurConv')
+        print('===> Building model')
         if (load == 2):
-            self.model = torch.load('%s/%sF_ALL.pth' % (self.dir, self.typeDir))
-        elif (load == 1):
-            self.model = torch.load('%s/%sF.pth' % (self.dir, self.typeDir))
+            self.model = torch.load('%s/%s_22.pth' % (self.dir, self.typeDir))
         else:
             self.model = restorator()
-        criterion = nn.MSELoss()
+        # criterion = nn.MSELoss()
+        criterion = PERLoss()
 
         if self.cuda:
             print('*******Cuda!!!*******')
@@ -73,18 +70,9 @@ class trainer:
 
             print("===> Epoch[{}]({}/{}): Loss: {:.4f}".format(epoch, iteration, len(self.training_data_loader), loss.data[0]))
 
-            self.trainL.add_scalar_value(self.trainLN, loss.data[0], time.time() - self.timeH)
+            # self.trainL.add_scalar_value(self.trainLN, loss.data[0], time.time() - self.timeH)
 
         print("===> Epoch {} Complete: Avg. Loss: {:.4f}".format(epoch, epoch_loss / len(self.training_data_loader)))
-        if (self.load == 2):
-            torch.save(self.model, '%s/%sF_ALL_%d.pth' % (self.dir, self.typeDir, epoch))
-            print("Checkpoint saved to %s/%sF_ALL_%d.pth" % (self.dir, self.typeDir, epoch))
-        elif (self.load == 1):
-            torch.save(self.model, '%s/%sF_%d.pth' % (self.dir, self.typeDir, epoch))
-            print("Checkpoint saved to %s/%sF_%d.pth" %  (self.dir, self.typeDir, epoch))
-        else:
-            torch.save(self.model, '%s/%s_%d.pth' % (self.dir,self.typeDir, epoch))
-            print("Checkpoint saved to %s/%s_%d.pth" % (self.dir,self.typeDir, epoch))
 
     def training(self):
         for epoch in range(1, self.nEpochs + 1):
@@ -92,29 +80,35 @@ class trainer:
         # *.pth - Pretraining gblurConv with 1/3
         # *F.pth - Finetuning gblurConv with 1/3 on pretraining gblurConv
         # *F_ALL.pth - Finetuning gblurConv with 100% on pretraining gblurConv
+        if (self.load == 2):
+            torch.save(self.model, '%s/%sF_ALL_%d.pth' % (self.dir, self.typeDir, epoch))
+            print("Checkpoint saved to %s/%sF_ALL_%d.pth" % (self.dir, self.typeDir, epoch))
+        else:
+            torch.save(self.model, '%s/%s_%d.pth' % (self.dir,self.typeDir, epoch))
+            print("Checkpoint saved to %s/%s_%d.pth" % (self.dir,self.typeDir, epoch))
 
 # pretraining with 100%
-# t = trainer('gblurConv', 22, 0.00001, 0, 'othersRes')
-# t.training()
-
-# t = trainer('wn', 22, 0.00001, 0, 'othersRes')
+# t = trainer('gblur', 22, 0.00001, 0, 'deconv')
 # t.training()
 #
-# t = trainer('jpeg', 22, 0.00001, 0, 'othersRes')
+# t = trainer('wn', 22, 0.00001, 0, 'deconv')
 # t.training()
 #
-# t = trainer('jp2k', 22, 0.00001, 0, 'othersRes')
+# t = trainer('jpeg', 22, 0.00001, 0, 'deconv')
+# t.training()
+#
+# t = trainer('jp2k', 22, 0.00001, 0, 'deconv')
 # t.training()
 
 # finetuning on pretraining gblurConv with 100%
-# t = trainer('gblurConv', 22, 0.000001, 2, 'othersRes')
-# t.training()
-#
-# t = trainer('wn', 22, 0.000001, 2, 'othersRes')
-# t.training()
-#
-# t = trainer('jpeg', 22, 0.000001, 2, 'othersRes')
-# t.training()
-#
-# t = trainer('jp2k', 22, 0.000001, 2, 'othersRes')
-# t.training()
+t = trainer('gblur', 22, 0.000001, 2, 'deconv')
+t.training()
+
+t = trainer('wn', 22, 0.000001, 2, 'deconv')
+t.training()
+
+t = trainer('jpeg', 22, 0.000001, 2, 'deconv')
+t.training()
+
+t = trainer('jp2k', 22, 0.000001, 2, 'deconv')
+t.training()
